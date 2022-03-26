@@ -11,5 +11,18 @@ def get_setting(key):
             value = result.fetchone()[0]
     return value
 
-s = get_setting('bot')
-print(s)
+def create_user(name, chat_id):
+    with psycopg.connect(connection_string) as con:
+        with con.cursor() as cur:
+            query = """
+                INSERT INTO users (name, telegram)
+                VALUES (%s, %s)
+                RETURNING id;
+                """
+            try:
+                result = cur.execute(query,(name, chat_id))
+                con.commit()
+                id = result.fetchone()[0]
+            except Exception as e:
+                id = None
+    return id
